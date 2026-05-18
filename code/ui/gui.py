@@ -272,3 +272,34 @@ dnd_frame.dnd_bind('<<Drop>>', datei_gedroppt)
 refresh_chart()
 
 app.mainloop()
+
+
+
+
+'''
+custom_color_entry = customtkinter.CTkEntry(master=tabview.tab("Einstellungen"), 
+                                            placeholder_text="Eigene Farbe (z.B. #1f1f1f)")
+custom_color_entry.grid(row=3, column=0, padx=20, pady=20)
+
+def set_custom_color():
+    color_theme = custom_color_entry.get().strip()
+
+    hex_muster = re.compile(r"^#[0-9a-fA-F]{6}$")
+    
+    if hex_muster.match(color_theme):
+        custom_color_entry.configure(border_color="#565b5e")
+
+        settings["appearance"]["custom_color"] = color_theme
+        with open(cp.SETTINGS_PATH, "w", encoding="utf-8") as f:
+            json.dump(settings, f, indent=4, ensure_ascii=False)
+        
+        print(f"Erfolgreich gespeichert: {color_theme}")
+        customtkinter.set_default_color_theme(color_theme)
+    else:
+        custom_color_entry.configure(border_color="#ff4444")
+
+set_custom_color_entry = customtkinter.CTkButton(master=tabview.tab("Einstellungen"),
+                                                 text="Enter",
+                                                 command=set_custom_color)
+set_custom_color_entry.grid(row=4, column=0, padx=20, pady=20)
+'''
