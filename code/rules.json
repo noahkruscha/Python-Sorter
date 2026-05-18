@@ -1,0 +1,45 @@
+{
+    "categories": {
+        "images": [
+            "png",
+            "jpg",
+            "jpeg",
+            "gif",
+            "webp"
+        ],
+        "documents": [
+            "pdf",
+            "docx",
+            "txt",
+            "odt"
+        ],
+        "videos": [
+            "mp4",
+            "mov",
+            "mkv"
+        ],
+        "music": [
+            "mp3",
+            "wav",
+            "flac"
+        ],
+        "archives": [
+            "zip",
+            "rar",
+            "7z"
+        ],
+        "code": [
+            "py",
+            "js",
+            "html",
+            "css",
+            "cpp"
+        ]
+    },
+    "fallback_category": "other",
+    "logging": {
+        "enabled": true,
+        "file": "result/logs/app.log",
+        "suffix_log": "result/logs/suffix.log"
+    }
+}
