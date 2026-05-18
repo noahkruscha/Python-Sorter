@@ -28,9 +28,6 @@ app.grid_rowconfigure((0, 1, 2,), weight=1)
 
 dnd_binary_dir = os.path.join(os.path.dirname(tkinterdnd2.__file__), "tkdnd", "win-x64")
 
-# Falls dein Windows/Python 32-Bit ist und die 64-Bit fehlschlägt, nimm alternativ:
-# dnd_binary_dir = os.path.join(os.path.dirname(tkinterdnd2.__file__), "tkdnd", "win-x86")
-
 app.tk.call('lappend', 'auto_path', dnd_binary_dir)
 
 app.tk.call('package', 'require', 'tkdnd')
@@ -94,19 +91,15 @@ def reset_statistics():
     app_log_dir = cp.LOG_PATH / "app.log"
     suffix_log_dir = cp.LOG_PATH / "suffix.log"
 
-    # 1. Neues eigenständiges Fenster erstellen
     warn_fenster = customtkinter.CTkToplevel(app)
     warn_fenster.title("Warnung!")
     warn_fenster.geometry("350x150")
     
-    # Verhindert, dass das Hauptfenster das Warnfenster überdeckt
     warn_fenster.attributes("-topmost", True)
     
-    # Das Layout des Warnfensters konfigurieren
     warn_fenster.grid_columnconfigure((0, 1), weight=1)
     warn_fenster.grid_rowconfigure((0, 1), weight=1)
 
-    # 2. Text (Label) im Warnfenster platzieren
     warn_label = customtkinter.CTkLabel(
         master=warn_fenster, 
         text="Achtung: Das zurücksetzten der\n Statistik löscht alle logs.\n Dieser Vorgang kann nicht\n rückgängig gemacht werden!",
@@ -115,11 +108,10 @@ def reset_statistics():
     )
     warn_label.grid(row=0, column=0, columnspan=2, padx=20, pady=10)
 
-    # 3. Schließen-Button im Warnfenster platzieren
     cancel_button = customtkinter.CTkButton(
         master=warn_fenster, 
         text="Abbrechen", 
-        command=warn_fenster.destroy # Schließt NUR das Warnfenster
+        command=warn_fenster.destroy
     )
     cancel_button.grid(row=1, column=0, padx=20, pady=10)
 
@@ -139,13 +131,11 @@ else:
 tabview = customtkinter.CTkTabview(app)
 tabview.grid(row=0, column=0, rowspan=3, columnspan=5, sticky="nsew", padx=20, pady=10)
 
-# Zwei Beispiel-Tabs erstellen
 tabview.add("Übersicht")
 tabview.add("Statistik")
 tabview.add("Einstellungen")
-tabview.set("Übersicht") # Standardmäßig den Statistik-Tab anzeigen
+tabview.set("Übersicht")
 
-# Grid-Gewichtung für den Statistik-Tab festlegen, damit das Diagramm sich dehnt
 tabview.tab("Übersicht").grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
 tabview.tab("Übersicht").grid_rowconfigure((0, 1, 2,), weight=1)
 
@@ -155,19 +145,15 @@ tabview.tab("Statistik").grid_rowconfigure((0, 1, 2,), weight=1)
 tabview.tab("Einstellungen").grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
 tabview.tab("Einstellungen").grid_rowconfigure((0, 1, 2, 3 , 4), weight=1)
 
-# master ist jetzt tabview.tab("Statistik") statt app
 chart_frame = customtkinter.CTkFrame(tabview.tab("Statistik"))
 chart_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-# Matplotlib-Figur EINMALIG global erstellen
 fig, ax = plt.subplots(figsize=(3, 3), dpi=100)
 
-# Diagramm-Canvas in das neue Frame einbetten
 canvas = FigureCanvasTkAgg(fig, master=chart_frame)
 canvas_widget = canvas.get_tk_widget()
 canvas_widget.pack(fill="both", expand=True)
 
-# Die Refresh-Funktion (unverändert)
 def refresh_chart():
     ax.clear()
     
