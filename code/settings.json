@@ -3,5 +3,8 @@
         "mode": "Dark",
         "color": "blue",
         "color_theme": "blue"
+    },
+    "watcher": {
+        "enabled": false
     }
 }
