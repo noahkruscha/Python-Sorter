@@ -18,7 +18,7 @@ if __name__ == "__main__":
     pid_file = cp.LOG_PATH / "watcher.pid"
     pid_file.write_text(str(os.getpid()))
 
-    print(f"Watching: {cp.EVENT_DIR}")  # <- existiert der Pfad?
+    print(f"Watching: {cp.EVENT_DIR}")
     print(f"PID: {os.getpid()}")
 
     observer = Observer()
