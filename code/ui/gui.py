@@ -300,7 +300,7 @@ def start_gui():
     dnd_frame.dnd_bind('<<Drop>>', datei_gedroppt)
 
     watcher_switch = customtkinter.CTkSwitch(master=tabview.tab("Einstellungen"),
-                                            text="Datei-Beobachter aktivieren", 
+                                            text="Verzeichnis-Beobachter aktivieren", 
                                             command=watcher_switch_event,
                                             variable=watcher_switch_var, 
                                             onvalue="on", 
