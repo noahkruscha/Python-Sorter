@@ -6,5 +6,10 @@
     },
     "watcher": {
         "enabled": false
+    },
+    "setup": {
+        "input_dir": "C:/Users/Noah/Desktop/PythonSorter project/event",
+        "output_dir": "C:/Users/Noah/Desktop/PythonSorter project/result/organized",
+        "done": false
     }
 }

@@ -14,6 +14,7 @@ code_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(code_dir))
 import config_paths as cp
 import sorter
+from ui import setup
 
 def start_gui():
     with open(cp.CONFIG_PATH, "r", encoding="utf-8") as f:
@@ -52,6 +53,39 @@ def start_gui():
         watcher_switch_var = customtkinter.StringVar(value="on")
     else:
         watcher_switch_var = customtkinter.StringVar(value="off")
+
+    log_last_size = [0]
+
+    def poll_log():
+        log_file = cp.LOG_PATH / "app.log"
+        
+        if log_file.exists():
+            size = log_file.stat().st_size
+            if size != log_last_size[0]:
+                log_last_size[0] = size
+                with open(log_file, "r", encoding="utf-8") as f:
+                    lines = f.readlines()
+                
+                log_textbox.configure(state="normal")
+                log_textbox.delete("1.0", "end")
+                log_textbox.insert("end", "".join(lines[-50:]))
+                log_textbox.see("end")
+                log_textbox.configure(state="disabled")
+        
+        app.after(1500, poll_log)
+
+    def show_help():
+        win = customtkinter.CTkToplevel(app)
+        win.title("Hilfe")
+        win.geometry("420x320")
+        win.attributes("-topmost", True)
+        customtkinter.CTkLabel(
+            win,
+            text="Was ist der \"PythonSorter\"?\n\nDer PythonSorter ist ein Tool, mit dem du Dateien durch einfaches Drag & Drop organisieren kannst. Es sortiert deine Dateien basierend auf der Dateinamen-Ändungung in ein vordefinierten Ordner.\n\nWas is der Datei-Beobachter?\n\nDer Datei-Beobachter ist ein Hintergrundprozess, der kontinuierlich den vorher festgelegten Eingabeordner überwacht. Sobald eine neue Datei in diesem Ordner erkannt wird, sortiert der Beobachter die Datei automatisch, ohne dass du manuell eingreifen musst.\n\nWas sind Logs und wofür brauche ich sie?\n\nLogs sind Aufzeichnungen der Aktivitäten des PythonSorter. Damit die Statistik funktioniert muss diese Funktion aktiviert sein.",
+            wraplength=380,
+            justify="left"
+        ).pack(padx=20, pady=20)
+        customtkinter.CTkButton(win, text="OK", command=win.destroy).pack(pady=(0, 16))
 
     def watcher_switch_event():
         if watcher_switch_var.get() == 'off':
@@ -116,7 +150,7 @@ def start_gui():
 
     def logging_switch_event():
         print("logging_switch toggled, current value:", logging_switch_var.get()) 
-        if logging_switch_var == 'off':
+        if logging_switch_var.get == 'off':
             config["logging"]["enabled"] = False
         else:
             config["logging"]["enabled"] = True
@@ -129,11 +163,11 @@ def start_gui():
 
         warn_fenster = customtkinter.CTkToplevel(app)
         warn_fenster.title("Warnung!")
-        warn_fenster.geometry("350x150")
+        warn_fenster.geometry("400x150")
         
         warn_fenster.attributes("-topmost", True)
         
-        warn_fenster.grid_columnconfigure((0, 1), weight=1)
+        warn_fenster.grid_columnconfigure((0, 1, 2), weight=1)
         warn_fenster.grid_rowconfigure((0, 1), weight=1)
 
         warn_label = customtkinter.CTkLabel(
@@ -142,7 +176,7 @@ def start_gui():
             font=customtkinter.CTkFont(size=14, weight="bold"),
             text_color="#ff4444"
         )
-        warn_label.grid(row=0, column=0, columnspan=2, padx=20, pady=10)
+        warn_label.grid(row=0, column=0, columnspan=3, padx=20, pady=10)
 
         cancel_button = customtkinter.CTkButton(
             master=warn_fenster, 
@@ -154,9 +188,16 @@ def start_gui():
         reset_button = customtkinter.CTkButton(
             master=warn_fenster, 
             text="Zurücksetzen", 
-            command=lambda: [app_log_dir.unlink(), suffix_log_dir.unlink(), refresh_chart(), print("Statistics successfully reset")]
+            command=lambda: [app_log_dir.unlink(), suffix_log_dir.unlink(), refresh_chart(), print("Statistics successfully reset"), warn_fenster.destroy()]
         )
         reset_button.grid(row=1, column=1, padx=20, pady=10)
+        
+        reload_statistics_button = customtkinter.CTkButton(
+            master=warn_fenster, 
+            text="Neu laden", 
+            command=lambda: [refresh_chart(), warn_fenster.destroy()]
+        )
+        reload_statistics_button.grid(row=1, column=2, padx=20, pady=10)
 
     tabview = customtkinter.CTkTabview(app)
     tabview.grid(row=0, column=0, rowspan=3, columnspan=5, sticky="nsew", padx=20, pady=10)
@@ -172,8 +213,8 @@ def start_gui():
     tabview.tab("Statistik").grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
     tabview.tab("Statistik").grid_rowconfigure((0, 1, 2,), weight=1)
 
-    tabview.tab("Einstellungen").grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
-    tabview.tab("Einstellungen").grid_rowconfigure((0, 1, 2, 3 , 4), weight=1)
+    tabview.tab("Einstellungen").grid_columnconfigure((0, 1, 2), weight=1)
+    tabview.tab("Einstellungen").grid_rowconfigure((0, 1, 2), weight=1)
 
     chart_frame = customtkinter.CTkFrame(tabview.tab("Statistik"))
     chart_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
@@ -244,26 +285,30 @@ def start_gui():
                                             command=logging_switch_event,
                                             variable=logging_switch_var, 
                                             onvalue="on", 
-                                            offvalue="off")
-    logging_switch.grid(row=4, column=4, padx=0, pady=0)
+                                            offvalue="off"
+    )
+    logging_switch.grid(row=1, column=1, padx=0, pady=0)
 
     reset_statistics_button = customtkinter.CTkButton(master=tabview.tab("Statistik"), 
                                                     text="Statistik zurücksetzen", 
-                                                    command=reset_statistics)
+                                                    command=reset_statistics
+    )
     reset_statistics_button.grid(row=0, column=4, padx=20, pady=20)
 
     appearance_mode_optionmenu_var = customtkinter.StringVar(value=appearance_mode)
     appearance_mode_optionmenu = customtkinter.CTkOptionMenu(master=tabview.tab("Einstellungen"),
                                                             values=["Dark", "Light"],
                                                             command=appearance_mode_optionmenu_callback,
-                                                            variable=appearance_mode_optionmenu_var)
+                                                            variable=appearance_mode_optionmenu_var
+    )
     appearance_mode_optionmenu.grid(row=0, column=0, padx=20, pady=20)
 
     appearance_color_theme_optionmenu_var = customtkinter.StringVar(value=color_theme)
     appearance_color_theme_optionmenu = customtkinter.CTkOptionMenu(master=tabview.tab("Einstellungen"),
                                                                     values=["blue", "dark-blue", "green"],
                                                                     command=appearance_color_theme_optionmenu_callback,
-                                                                    variable=appearance_color_theme_optionmenu_var)
+                                                                    variable=appearance_color_theme_optionmenu_var
+    )
     appearance_color_theme_optionmenu.grid(row=1, column=0, padx=20, pady=20)
 
     restart_button = customtkinter.CTkButton(master=tabview.tab("Einstellungen"),
@@ -271,14 +316,32 @@ def start_gui():
                                             hover_color="#ff4444",
                                             command=restart_app
     )
-    restart_button.grid(row=2, column=0, padx=20, pady=20)
+    restart_button.grid(row=1, column=2, padx=20, pady=20)
 
     quit_app_button = customtkinter.CTkButton(master=tabview.tab("Einstellungen"),
                                             text="App beenden",
                                             hover_color="#ff4444",
                                             command=lambda: [app.quit(), app.destroy()]
     )
-    quit_app_button.grid(row=0, column=4, padx=20, pady=20)
+    quit_app_button.grid(row=2, column=2, padx=20, pady=20)
+
+    restart_setup_button = customtkinter.CTkButton(master=tabview.tab("Einstellungen"),
+                                            text="Setup neu starten",
+                                            command=lambda: setup.run_setup()
+    )
+    restart_setup_button.grid(row=2, column=0, padx=20, pady=20)
+
+    open_result_button = customtkinter.CTkButton(master=tabview.tab("Einstellungen"),
+                                            text="Ausgabeordner öffnen",
+                                            command=lambda: os.startfile(settings["setup"]["output_dir"])
+    )
+    open_result_button.grid(row=0, column=2, padx=20, pady=20)
+
+    help_button = customtkinter.CTkButton(master=tabview.tab("Einstellungen"),
+                                            text="Hilfe",
+                                            command=show_help
+    )
+    help_button.grid(row=2, column=1, padx=20, pady=20)
 
     dnd_frame = customtkinter.CTkFrame(master=tabview.tab("Übersicht"),
                                     fg_color=("#dbdbdb", "#2b2b2b"),
@@ -296,18 +359,52 @@ def start_gui():
     )
     dnd_label.grid(row=0, column=0)
 
+    dnd_sub_label = customtkinter.CTkLabel(
+    master=dnd_frame,
+    text="Für mehrere Dateien → Eingabeordner verwenden",
+    font=customtkinter.CTkFont(size=11),
+    text_color="gray60"
+    )
+    dnd_sub_label.grid(row=1, column=0, pady=(0, 8))
+
     dnd_frame.drop_target_register(DND_FILES)
     dnd_frame.dnd_bind('<<Drop>>', datei_gedroppt)
 
     watcher_switch = customtkinter.CTkSwitch(master=tabview.tab("Einstellungen"),
-                                            text="Verzeichnis-Beobachter aktivieren", 
+                                            text="Datei-Beobachter aktivieren", 
                                             command=watcher_switch_event,
                                             variable=watcher_switch_var, 
                                             onvalue="on", 
                                             offvalue="off")
-    watcher_switch.grid(row=1, column=4, padx=0, pady=0)
+    watcher_switch.grid(row=0, column=1, padx=0, pady=0)
 
+    log_frame = customtkinter.CTkFrame(
+        master=tabview.tab("Übersicht"),
+        fg_color=("#dbdbdb", "#2b2b2b"),
+        border_color=("#979da2", "#1f538d"),
+        border_width=2,
+        corner_radius=12
+    )
+    log_frame.grid(row=0, column=3, rowspan=3, columnspan=2, sticky="nsew", padx=40, pady=40)
+    log_frame.grid_rowconfigure(1, weight=1)
+    log_frame.grid_columnconfigure(0, weight=1)
 
+    log_label = customtkinter.CTkLabel(
+        master=log_frame,
+        text="Live Log",
+        font=customtkinter.CTkFont(size=13, weight="bold")
+    )
+    log_label.grid(row=0, column=0, padx=10, pady=(8, 0), sticky="w")
+
+    log_textbox = customtkinter.CTkTextbox(
+        master=log_frame,
+        state="disabled",
+        font=customtkinter.CTkFont(family="Courier", size=11),
+        wrap="none"
+    )
+    log_textbox.grid(row=1, column=0, sticky="nsew", padx=8, pady=8)
+
+    poll_log()
     refresh_chart()
 
     if settings["watcher"]["enabled"]:
