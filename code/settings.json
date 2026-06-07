@@ -8,8 +8,8 @@
         "enabled": false
     },
     "setup": {
-        "input_dir": "C:/Users/Noah/Desktop/PythonSorter project/event",
-        "output_dir": "C:/Users/Noah/Desktop/PythonSorter project/result/organized",
+        "input_dir": "",
+        "output_dir": "",
         "done": false
     }
 }
