@@ -38,8 +38,6 @@
     },
     "fallback_category": "other",
     "logging": {
-        "enabled": true,
-        "file": "result/logs/app.log",
-        "suffix_log": "result/logs/suffix.log"
+        "enabled": true
     }
 }

@@ -42,12 +42,12 @@ def sort_file(file_path):
     # loggen
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if config["logging"]["enabled"]:
-        log_path = Path(config["logging"]["file"])
+        log_path = cp.LOG_PATH / "app.log"
         log_path.parent.mkdir(parents=True, exist_ok=True)
         log_entry = f"{file_name} wurde um {current_time} nach {category} bewegt"
         with open(log_path, "a", encoding="utf-8") as f:
             f.write(log_entry + "\n")
-        suffix_log_path = Path(config["logging"]["suffix_log"])
+        suffix_log_path = cp.LOG_PATH / "suffix.log"
         suffix_log_path.parent.mkdir(parents=True, exist_ok=True)
         with open(suffix_log_path, "a", encoding="utf-8") as f:
             f.write(file_suffix + "\n")

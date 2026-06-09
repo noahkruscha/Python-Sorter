@@ -11,9 +11,13 @@ from tkinter import filedialog
 
 
 def _load_config() -> dict:
+    print(f"SETTINGS_PATH: {cp.SETTINGS_PATH}")
+    print(f"exists: {cp.SETTINGS_PATH.exists()}")
     try:
         with open(cp.SETTINGS_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
+            content = json.load(f)
+            print(f"type: {type(content)}")
+            return content
     except (FileNotFoundError, json.JSONDecodeError):
         return {}
 
@@ -64,6 +68,8 @@ def run_setup() -> None:
     status_label = ctk.CTkLabel(app, text="", text_color="gray60")
     status_label.pack(pady=(10, 0))
 
+    saved = [False]
+
     def on_save() -> None:
         input_dir = input_var.get().strip()
         output_dir = output_var.get().strip()
@@ -73,9 +79,11 @@ def run_setup() -> None:
             return
 
         _save_config({"input_dir": input_dir, "output_dir": output_dir})
+        saved[0] = True
         status_label.configure(text="Gespeichert.", text_color="#52e07a")
         app.after(800, app.destroy)
 
     ctk.CTkButton(app, text="Speichern", command=on_save, width=160).pack(pady=(8, 0))
 
     app.mainloop()
+    return saved[0]

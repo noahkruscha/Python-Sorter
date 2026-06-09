@@ -36,6 +36,13 @@ def start_gui():
 
     appearance_mode = settings["appearance"]["mode"]
     color_theme = settings["appearance"]["color_theme"]
+    if color_theme == "dark-blue":
+        global log_frame_border_color
+        log_frame_border_color = "#1f538d"
+    elif color_theme == "blue":
+        log_frame_border_color = "#1f6aa5"
+    elif color_theme == "green":
+        log_frame_border_color = "#2fa572"
     chart_infill_color = "#2b2b2b"
     chart_text_color = "white"
 
@@ -77,7 +84,7 @@ def start_gui():
     def show_help():
         win = customtkinter.CTkToplevel(app)
         win.title("Hilfe")
-        win.geometry("420x320")
+        win.geometry("420x360")
         win.attributes("-topmost", True)
         customtkinter.CTkLabel(
             win,
@@ -100,13 +107,15 @@ def start_gui():
             if pid_file.exists():
                 return
             settings["watcher"]["enabled"] = True
-            python_exe = sys.executable
+            if getattr(sys, 'frozen', False):
+                watcher_exe = Path(sys.executable).parent / "watcher.exe"
+                cmd = [str(watcher_exe)]
+            else:
+                python_exe = sys.executable
+                cmd = [str(python_exe), str(code_dir / "watcher.py")]
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            subprocess.Popen(
-                [str(python_exe), str(code_dir / "watcher.py")],
-                startupinfo=startupinfo
-            )
+            subprocess.Popen(cmd, startupinfo=startupinfo)
         with open(cp.SETTINGS_PATH, "w", encoding="utf-8") as f:
             json.dump(settings, f, indent=4, ensure_ascii=False)
 
@@ -130,6 +139,17 @@ def start_gui():
         with open(cp.SETTINGS_PATH, "w", encoding="utf-8") as f:
             json.dump(settings, f, indent=4, ensure_ascii=False)
         customtkinter.set_default_color_theme(color_theme)
+        if color_theme == "dark-blue":
+            global log_frame_border_color
+            log_frame_border_color = "#1f538d"
+            log_frame.configure(border_color=(log_frame_border_color, log_frame_border_color))
+        elif color_theme == "blue":
+            log_frame_border_color = "#1f6aa5"
+            log_frame.configure(border_color=(log_frame_border_color, log_frame_border_color))
+        elif color_theme == "green":
+            log_frame_border_color = "#2fa572"
+            log_frame.configure(border_color=(log_frame_border_color, log_frame_border_color))
+        restart_app()
 
     def appearance_mode_optionmenu_callback(choice):
         global chart_infill_color
@@ -345,7 +365,7 @@ def start_gui():
 
     dnd_frame = customtkinter.CTkFrame(master=tabview.tab("Übersicht"),
                                     fg_color=("#dbdbdb", "#2b2b2b"),
-                                    border_color=("#979da2", "#1f538d"),
+                                    border_color=(log_frame_border_color, log_frame_border_color),
                                     border_width=2,
                                     corner_radius=12
     )
@@ -381,7 +401,7 @@ def start_gui():
     log_frame = customtkinter.CTkFrame(
         master=tabview.tab("Übersicht"),
         fg_color=("#dbdbdb", "#2b2b2b"),
-        border_color=("#979da2", "#1f538d"),
+        border_color=(log_frame_border_color, log_frame_border_color),
         border_width=2,
         corner_radius=12
     )
@@ -408,13 +428,15 @@ def start_gui():
     refresh_chart()
 
     if settings["watcher"]["enabled"]:
-        python_exe = sys.executable
+        if getattr(sys, 'frozen', False):
+            watcher_exe = Path(sys.executable).parent / "watcher.exe"
+            cmd = [str(watcher_exe)]
+        else:
+            python_exe = sys.executable
+            cmd = [str(python_exe), str(code_dir / "watcher.py")]
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        subprocess.Popen(
-            [str(python_exe), str(code_dir / "watcher.py")],
-            startupinfo=startupinfo
-        )
+        subprocess.Popen(cmd, startupinfo=startupinfo)
 
     app.mainloop()
 

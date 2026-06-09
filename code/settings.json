@@ -5,7 +5,7 @@
         "color_theme": "blue"
     },
     "watcher": {
-        "enabled": false
+        "enabled": true
     },
     "setup": {
         "input_dir": "",

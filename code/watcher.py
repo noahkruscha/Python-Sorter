@@ -1,5 +1,10 @@
 import os
+from pathlib import Path
 import sys
+
+code_dir = Path(__file__).resolve().parent
+sys.path.append(str(code_dir))
+
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import config_paths as cp
@@ -15,6 +20,7 @@ class Handler(FileSystemEventHandler):
         sorter.sort_file(file_path)
 
 if __name__ == "__main__":
+    cp.LOG_PATH.mkdir(parents=True, exist_ok=True)
     pid_file = cp.LOG_PATH / "watcher.pid"
     pid_file.write_text(str(os.getpid()))
 
